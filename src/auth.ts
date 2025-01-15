@@ -1,19 +1,17 @@
 import NextAuth, { DefaultSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { login, refreshToken } from "./service/auth";
+import * as authService from "./service/auth";
 import { DefaultJWT } from "next-auth/jwt";
-
-const THREE_DAYS_IN_MS = 86400 * 3;
+import { jwtDecode } from "jwt-decode";
 
 declare module "next-auth" {
   interface Session {
+    accessToken: string;
+    refreshToken: string;
     user: {
-      accessToken: string;
-      refreshToken: string;
       email: string;
       role: string;
       id: number;
-      expires: string;
     } & DefaultSession["user"];
   }
 
@@ -21,7 +19,6 @@ declare module "next-auth" {
     accessToken: string;
     refreshToken: string;
     role: string;
-    expires: string;
   }
 
   interface JWT extends DefaultJWT {
@@ -29,11 +26,44 @@ declare module "next-auth" {
     refreshToken: string;
     role: string;
     id: number;
-    expires: string;
   }
 }
 
-export const { auth, handlers, signIn, signOut } = NextAuth({
+async function refreshAccessToken(token: any): Promise<any> {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
+      {
+        headers: {
+          Authorization: `Bearer ${token.refreshToken}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Invalid refresh token");
+    }
+
+    const newTokens = await response.json();
+
+    return {
+      ...token,
+      accessToken: newTokens.accessToken,
+      refreshToken: newTokens.refreshToken ?? token.refreshToken,
+    };
+  } catch (e: any) {
+    console.error(e.message);
+    return null;
+  }
+}
+
+export const {
+  auth,
+  handlers,
+  signIn,
+  signOut,
+  unstable_update: update,
+} = NextAuth({
   providers: [
     Credentials({
       credentials: {
@@ -43,7 +73,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       authorize: async (credentials) => {
         if (!credentials.email || !credentials.password) return null;
         try {
-          const response = await login(
+          const response = await authService.login(
             credentials.email as string,
             credentials.password as string,
           );
@@ -53,9 +83,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             return {
               accessToken: access_token,
               refreshToken: refresh_token,
-              expires: new Date(Date.now() + THREE_DAYS_IN_MS).toISOString(),
               email: user.email,
-              id: user.id,
+              id: Number(user.id),
               role: user.role,
             } as any;
           }
@@ -70,42 +99,30 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     authorized: async ({ auth }) => {
       return !!auth;
     },
-    async jwt({ token, user }) {
-      if (user) {
-        token.accessToken = user.accessToken;
-        token.refreshToken = user.refreshToken;
-        token.role = user.role;
-        token.id = user.id;
-        token.expires = user.expires;
+    jwt: async ({ token, user, account }) => {
+      if (token?.accessToken) {
+        const decodedToken = jwtDecode(token.accessToken as string);
+        token.accessTokenExpires = (decodedToken?.exp || 1) * 1000;
+      }
+      if (account && user) {
+        return {
+          ...token,
+          accessToken: user.accessToken,
+          refreshToken: user.refreshToken,
+          user,
+        };
       }
 
-      if (token.expires && new Date(token.expires as string) < new Date()) {
-        try {
-          const refreshedTokens = await refreshToken(
-            token.id as number,
-            token.refreshToken as string,
-          );
-
-          return {
-            ...token,
-            accessToken: refreshedTokens.accessToken,
-            refreshToken: refreshedTokens.refreshToken || token.refreshToken,
-            expires: new Date(Date.now() + THREE_DAYS_IN_MS).toISOString(),
-          };
-        } catch (error) {
-          console.error("Token refresh error:", error);
-          return { ...token, error: "RefreshAccessTokenError" };
-        }
+      if (Date.now() < (token.accessTokenExpires as number)) {
+        return token;
       }
 
-      return token;
+      return refreshAccessToken(token);
     },
-    async session({ session, token }) {
+    session: async ({ session, token }) => {
       if (token) {
-        session.user.accessToken = token.accessToken as string;
-        session.user.refreshToken = token.refreshToken as string;
-        session.user.role = token.role as string;
-        session.user.id = token.id as never;
+        session.accessToken = token.accessToken as string;
+        session.refreshToken = token.refreshToken as string;
       }
 
       return session;
@@ -113,7 +130,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   },
   session: {
     strategy: "jwt",
-    updateAge: THREE_DAYS_IN_MS,
   },
   pages: {},
 });

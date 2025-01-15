@@ -1,12 +1,12 @@
-import axios from "axios";
-import { BASE_URL } from "./base";
+import apiClient from "@/lib/apiClient";
 
 export async function login(email: string, password: string) {
   try {
-    const response = await axios.post(`${BASE_URL}/auth/login`, {
-      email,
-      password,
-    });
+    const response = await apiClient.post(
+      "/auth/login",
+      { email, password },
+      { skipAuth: true },
+    );
 
     return response.data;
   } catch (e) {
@@ -15,15 +15,17 @@ export async function login(email: string, password: string) {
   }
 }
 
-export async function refreshToken(id: number, refreshToken: string) {
+export async function refreshToken(refreshToken: string) {
   try {
-    const response = await axios.post(`${BASE_URL}/auth/refresh`, {
-      id,
-      refreshToken,
+    const response = await apiClient.get("/auth/refresh", {
+      headers: {
+        Authorization: `Bearer ${refreshToken}`,
+      },
     });
 
     return response.data;
-  } catch (e) {
-    console.error(e);
+  } catch (e: any) {
+    console.error("Axios Error:", e.response?.data || e.message);
+    throw new Error("Failed refresh token attempt");
   }
 }
