@@ -1,8 +1,11 @@
 import { signOut } from "@/auth";
+import { columns } from "@/components/ui/orders/columns";
+import { DataTable } from "@/components/ui/orders/data-table";
 import * as ordersService from "@/service/orders";
 
 export default async function Home() {
   const orders = await ordersService.getAll(0, 10);
+  console.log(orders);
 
   return (
     <>
@@ -19,13 +22,8 @@ export default async function Home() {
       >
         <button>Sign Out</button>
       </form>
-      <div className="flex flex-col gap-2">
-        {orders?.data.map((order) => (
-          <div key={order.id}>
-            {order.id} - {order.state} - {order.client.cuit} -{" "}
-            {order.client.name}
-          </div>
-        ))}
+      <div className="container mx-auto py-10">
+        <DataTable columns={columns} data={orders.data} />
       </div>
     </>
   );
