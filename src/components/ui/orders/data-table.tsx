@@ -31,15 +31,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { DataTablePagination } from "../pagination";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  page: number;
+  setPageAction: React.Dispatch<React.SetStateAction<number>>;
+  setLimitAction: React.Dispatch<React.SetStateAction<number>>;
+  totalPages: number;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  page,
+  setPageAction: setPage,
+  setLimitAction: setLimit,
+  totalPages,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -79,9 +88,17 @@ export function DataTable<TData, TValue>({
           }
           className="max-w-sm"
         />
+        <Input
+          placeholder="Filtrar por nombre"
+          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          onChange={(event) =>
+            table.getColumn("name")?.setFilterValue(event.target.value)
+          }
+          className="max-w-sm ml-4"
+        />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button variant="ghost" className="ml-auto">
               Columnas <ChevronDown />
             </Button>
           </DropdownMenuTrigger>
@@ -149,33 +166,20 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  Sin resultados.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+      <DataTablePagination
+        table={table}
+        totalPages={totalPages}
+        page={page}
+        setPageAction={setPage}
+        setLimitAction={setLimit}
+      />
     </div>
   );
 }

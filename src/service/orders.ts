@@ -1,3 +1,4 @@
+"use server";
 import apiClient from "@/lib/apiClient";
 
 export async function getAll(page: number, limit: number) {
