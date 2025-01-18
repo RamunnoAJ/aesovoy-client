@@ -9,9 +9,9 @@ export async function login(email: string, password: string) {
     );
 
     return response.data;
-  } catch (e) {
-    console.error(e);
-    throw new Error("Failed login attempt");
+  } catch (e: any) {
+    console.error("Axios Error:", e.response?.data || e.message);
+    throw new Error("Failed login with credentials attempt");
   }
 }
 
@@ -27,5 +27,20 @@ export async function refreshToken(refreshToken: string) {
   } catch (e: any) {
     console.error("Axios Error:", e.response?.data || e.message);
     throw new Error("Failed refresh token attempt");
+  }
+}
+
+export async function findUserByEmail(email: string) {
+  try {
+    const response = await apiClient.post(
+      "/auth/google",
+      { email },
+      { skipAuth: true },
+    );
+
+    return response.data;
+  } catch (e: any) {
+    console.error("Axios Error:", e.response?.data || e.message);
+    throw new Error("Failed login with google attempt");
   }
 }

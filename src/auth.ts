@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import * as authService from "./service/auth";
 import { DefaultJWT } from "next-auth/jwt";
 import { jwtDecode } from "jwt-decode";
+import google from "next-auth/providers/google";
 
 declare module "next-auth" {
   interface Session {
@@ -65,6 +66,10 @@ export const {
   unstable_update: update,
 } = NextAuth({
   providers: [
+    google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
     Credentials({
       credentials: {
         email: { label: "Email", type: "text" },
