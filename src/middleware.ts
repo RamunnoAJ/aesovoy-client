@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
-const PUBLIC_ROUTES = ["/login", "/google-login"];
+const PUBLIC_ROUTES = ["/login", "/google-login", "/api/auth/set-token"];
 
 export default auth((req) => {
   if (!req.auth && !PUBLIC_ROUTES.includes(req.nextUrl.pathname)) {
@@ -14,4 +14,7 @@ export default auth((req) => {
 
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  api: {
+    bodyParser: true,
+  },
 };

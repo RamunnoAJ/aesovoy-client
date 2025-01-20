@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { handleSignIn, handleGoogleSignIn } from "@/lib/actions";
+import { handleSignIn, handleSignInGoogle } from "@/lib/actions";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -38,12 +38,8 @@ export function LoginForm({
   async function handleSubmitGoogle(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    //try {
-    const result = await handleGoogleSignIn();
+    const result = await handleSignInGoogle();
     console.log("Signed in:", result);
-    //} catch (e: any) {
-    //  console.error(e.message);
-    //}
   }
 
   return (

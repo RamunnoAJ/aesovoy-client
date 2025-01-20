@@ -33,7 +33,7 @@ export async function refreshToken(refreshToken: string) {
 export async function findUserByEmail(email: string) {
   try {
     const response = await apiClient.post(
-      "/auth/google",
+      "/auth/email-provider",
       { email },
       { skipAuth: true },
     );

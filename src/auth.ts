@@ -1,9 +1,9 @@
 import NextAuth, { DefaultSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import * as authService from "./service/auth";
 import { DefaultJWT } from "next-auth/jwt";
 import { jwtDecode } from "jwt-decode";
-import google from "next-auth/providers/google";
 
 declare module "next-auth" {
   interface Session {
@@ -66,9 +66,26 @@ export const {
   unstable_update: update,
 } = NextAuth({
   providers: [
-    google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+      async profile(profile) {
+        const user = await authService.findUserByEmail(profile.email);
+
+        if (!user || !user.data) {
+          throw new Error("Email not found in the db");
+        }
+
+        return {
+          id: user.data.id,
+          email: user.data.email,
+          name: profile.name,
+          image: profile.picture,
+          role: user.data.role,
+          accessToken: user.data.access_token,
+          refreshToken: user.data.refresh_token,
+        };
+      },
     }),
     Credentials({
       credentials: {

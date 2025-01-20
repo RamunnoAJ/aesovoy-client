@@ -15,13 +15,7 @@ export async function handleSignIn(email: string, password: string) {
   }
 }
 
-export async function handleGoogleSignIn() {
-  //try {
+export async function handleSignInGoogle() {
   const result = await signIn("google");
-  console.log(result);
-
   return result;
-  //} catch (e: any) {
-  //  throw new Error("Failed to sign in with Google");
-  //}
 }
