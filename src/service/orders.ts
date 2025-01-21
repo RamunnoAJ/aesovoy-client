@@ -3,10 +3,7 @@ import apiClient from "@/lib/apiClient";
 
 export async function getAll(page: number, limit: number) {
   try {
-    const response = await apiClient.get(
-      `/orders?page=${page}&limit=${limit}`,
-      { skipAuth: false },
-    );
+    const response = await apiClient.get(`/orders?page=${page}&limit=${limit}`);
 
     return response.data;
   } catch (e) {

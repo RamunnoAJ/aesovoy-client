@@ -9,6 +9,11 @@ export default auth((req) => {
     return Response.redirect(loginUrl);
   }
 
+  if (req.auth && PUBLIC_ROUTES.includes(req.nextUrl.pathname)) {
+    const dashboardUrl = new URL("/", req.nextUrl.origin);
+    return Response.redirect(dashboardUrl);
+  }
+
   return NextResponse.next();
 });
 

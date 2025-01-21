@@ -15,23 +15,19 @@ export default function Page() {
   });
 
   return (
-    <div className="p-3">
-      <h2 className="text-2xl my-2">Orders page</h2>
-      <ul>
-        <h3 className="text-xl my-2">Orders list</h3>
-        {isLoading ? (
-          <DataTableSkeleton columnCount={5} />
-        ) : (
-          <OrdersTable
-            setLimitAction={setLimit}
-            data={data.data}
-            columns={columns}
-            page={page}
-            setPageAction={setPage}
-            totalPages={Math.ceil(data.total / limit)}
-          />
-        )}
-      </ul>
-    </div>
+    <ul className="p-3 w-full">
+      {isLoading ? (
+        <DataTableSkeleton columnCount={5} />
+      ) : (
+        <OrdersTable
+          setLimitAction={setLimit}
+          data={data.data}
+          columns={columns}
+          page={page}
+          setPageAction={setPage}
+          totalPages={Math.ceil(data.total / limit)}
+        />
+      )}
+    </ul>
   );
 }

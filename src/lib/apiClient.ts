@@ -16,6 +16,7 @@ apiClient.interceptors.request.use(async (config) => {
   const accessToken = session?.accessToken;
 
   if (accessToken) {
+    console.log(accessToken);
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
 
