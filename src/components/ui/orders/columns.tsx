@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,59 +11,35 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-export type Order = {
-  id: number;
-  total: number;
-  state: "todo" | "done" | "delivered" | "cancelled";
-  client: {
-    id: number;
-    name: string;
-    address: string;
-    phone: string;
-    email: string;
-    reference: string;
-    cuit: string;
-    type: "individual" | "wholesaler";
-  };
-};
+import { Order } from "@/mapper/dto/order.dto";
 
 export const columns: ColumnDef<Order>[] = [
   {
     id: "cuit",
-    accessorKey: "client.cuit",
+    accessorKey: "clientCuit",
     header: "CUIT",
     cell: ({ row }) => <div className="capitalize">{row.getValue("cuit")}</div>,
   },
   {
-    id: "name",
-    accessorKey: "client.name",
+    id: "nombre",
+    accessorKey: "clientName",
     header: "Nombre",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("nombre")}</div>
+    ),
   },
   {
+    id: "estado",
     accessorKey: "state",
     header: "Estado",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("state")}</div>
+      <div className="capitalize">{row.getValue("estado")}</div>
     ),
   },
   {
     id: "email",
-    accessorKey: "client.email",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Email
-          <ArrowUpDown />
-        </Button>
-      );
-    },
+    accessorKey: "clientEmail",
+    header: "Email",
     cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
   },
   {

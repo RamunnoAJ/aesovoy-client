@@ -1,5 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function Layout({
   children,
@@ -9,7 +9,10 @@ export default function Layout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      {children}
+      <main className="w-full p-4 ">
+        <SidebarTrigger />
+        {children}
+      </main>
     </SidebarProvider>
   );
 }

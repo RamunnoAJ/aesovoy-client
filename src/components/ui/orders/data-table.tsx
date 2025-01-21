@@ -4,13 +4,11 @@ import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
-  SortingState,
   VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
-  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronDown } from "lucide-react";
@@ -34,6 +32,10 @@ import {
 import { DataTablePagination } from "../pagination";
 
 interface DataTableProps<TData, TValue> {
+  cuit: string;
+  setCuitAction: React.Dispatch<React.SetStateAction<string>>;
+  name: string;
+  setNameAction: React.Dispatch<React.SetStateAction<string>>;
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   page: number;
@@ -43,6 +45,10 @@ interface DataTableProps<TData, TValue> {
 }
 
 export function DataTable<TData, TValue>({
+  cuit,
+  setCuitAction: setCuit,
+  name,
+  setNameAction: setName,
   columns,
   data,
   page,
@@ -50,7 +56,6 @@ export function DataTable<TData, TValue>({
   setLimitAction: setLimit,
   totalPages,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
@@ -61,16 +66,13 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
-    onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
-      sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
@@ -82,18 +84,14 @@ export function DataTable<TData, TValue>({
       <div className="flex items-center py-4">
         <Input
           placeholder="Filtrar por CUIT"
-          value={(table.getColumn("cuit")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("cuit")?.setFilterValue(event.target.value)
-          }
+          value={cuit}
+          onChange={(event) => setCuit(event.target.value)}
           className="max-w-sm"
         />
         <Input
           placeholder="Filtrar por nombre"
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
-          }
+          value={name}
+          onChange={(event) => setName(event.target.value)}
           className="max-w-sm ml-4"
         />
         <DropdownMenu>
@@ -174,11 +172,9 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
       <DataTablePagination
-        table={table}
         totalPages={totalPages}
         page={page}
         setPageAction={setPage}
-        setLimitAction={setLimit}
       />
     </div>
   );

@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { handleSignIn, handleSignInGoogle } from "@/lib/actions";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 export function LoginForm({
   className,
@@ -21,25 +21,27 @@ export function LoginForm({
 }: React.ComponentPropsWithoutRef<"div">) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter();
+  const { toast } = useToast();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
-      const result = await handleSignIn(email, password);
-      console.log("Signed in:", result);
-
-      router.push("/");
+      await handleSignIn(email, password);
+      toast({ title: "Inicio de sesión exitoso" });
     } catch (e: any) {
       console.error(e.message);
+      toast({ title: "Inicio de sesión fallido" });
     }
   }
 
   async function handleSubmitGoogle(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const result = await handleSignInGoogle();
-    console.log("Signed in:", result);
+    try {
+      await handleSignInGoogle();
+    } catch (e: any) {
+      console.error(e.message);
+    }
   }
 
   return (

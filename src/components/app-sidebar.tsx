@@ -1,10 +1,9 @@
 import * as React from "react";
 
-import { SearchForm } from "@/components/search-form";
-import { VersionSwitcher } from "@/components/version-switcher";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -12,18 +11,23 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
 } from "@/components/ui/sidebar";
+import { Leaf } from "lucide-react";
+import { NavUser } from "./nav-user";
 
 const data = {
-  versions: ["0.1.0"],
   navMain: [
     {
-      title: "Inicio",
+      title: "Órdenes",
       items: [
         {
-          title: "Project Structure",
-          url: "#",
+          title: "Ver órdenes",
+          url: "/orders",
+          isActive: true,
+        },
+        {
+          title: "Crear órden",
+          url: "/orders/create",
         },
       ],
     },
@@ -37,20 +41,6 @@ const data = {
         {
           title: "Crear cliente",
           url: "/clients/create",
-          isActive: true,
-        },
-      ],
-    },
-    {
-      title: "Ordenes",
-      items: [
-        {
-          title: "Ver órdenes",
-          url: "/orders",
-        },
-        {
-          title: "Crear órden",
-          url: "/orders/create",
         },
       ],
     },
@@ -80,20 +70,52 @@ const data = {
         },
       ],
     },
+    {
+      title: "Categorías",
+      items: [
+        {
+          title: "Ver categorías",
+          url: "/categories",
+        },
+        {
+          title: "Crear categoría",
+          url: "/categories/create",
+        },
+      ],
+    },
+    {
+      title: "Local",
+      items: [
+        {
+          title: "Facturación",
+          url: "/local",
+        },
+      ],
+    },
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar() {
   return (
-    <Sidebar {...props}>
+    <Sidebar variant="floating">
       <SidebarHeader>
-        <VersionSwitcher
-          versions={data.versions}
-          defaultVersion={data.versions[0]}
-        />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <a href="#">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-sidebar-primary-foreground">
+                  <Leaf className="size-4" />
+                </div>
+                <div className="flex flex-col gap-0.5 leading-none">
+                  <span className="font-semibold">A eso voy! Plant based</span>
+                  <span className="">v0.1.0</span>
+                </div>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {/* We create a SidebarGroup for each parent. */}
         {data.navMain.map((item) => (
           <SidebarGroup key={item.title}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
@@ -111,7 +133,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroup>
         ))}
       </SidebarContent>
-      <SidebarRail />
+      <SidebarFooter>
+        <NavUser />
+      </SidebarFooter>
     </Sidebar>
   );
 }
